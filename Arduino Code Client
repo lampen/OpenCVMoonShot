@@ -1,0 +1,178 @@
+// DataHubClient I2C V03
+
+//////////////////////////////////////////////////
+//                Data Catalouge;               //
+//    names and designation of each datapoint   //
+//////////////////////////////////////////////////
+//
+// MasterTime            = 0  Time since Datahub initiated
+// CurrentPositionLON    = 1  Coordinates of the balloon
+// CurrentPositionLAT    = 2
+// CurrentPositionHGTGPS = 3
+// CurrentPositionHGTBAR = 4
+// CurrentHeadingAZI     = 5  Direction of Telescope
+// CurrentHeadingHGT     = 6
+// TargetheadingAZI      = 7  Direction of Mün
+// TargetheadingHGT      = 8
+
+#include <Wire.h>
+
+long test = 1;
+
+void setup()
+{
+  Wire.begin();
+  pinMode(4,INPUT_PULLUP);
+  Wire.setTimeout(10);
+  Serial.begin(9600);
+}
+
+void loop()
+{
+  delay(2000);
+  dataHubWriteVal(0,test);
+  delay(2000);
+  test = test + dataHubReadVal(0);
+  Serial.println(test);
+}
+
+// Function writing arbitrary Strings to datahub
+void dataHubWrite(byte dataHubID, String dataHubCONTENT)
+{
+  if (dataHubCONTENT.length() > 0 && dataHubID < 20 && dataHubID >= 0)
+  {
+    transmit((String(dataHubID) + ";" + dataHubCONTENT + "#"));
+  }
+}
+
+// Function writing values to datahub
+void dataHubWriteVal(byte dataHubID, long dataHubCONTENT)
+{
+  if (dataHubID < 20 && dataHubID >= 0)
+  {
+    transmit((String(dataHubID) + ";" + String(dataHubCONTENT) + "#"));
+  }
+}
+
+// Function appending data in datahub
+void dataHubAppend(byte dataHubID, String dataHubCONTENT)
+{
+  if (dataHubID < 20 && dataHubID >= 0)
+  {
+    transmit((String(dataHubID) + "=" + dataHubCONTENT + "#"));
+  }
+}
+
+void dataHubAppendVal(byte dataHubID, long dataHubCONTENT)
+{
+  if (dataHubID < 20 && dataHubID >= 0)
+  {
+    transmit((String(dataHubID) + "=," + String(dataHubCONTENT) + "#"));
+  }
+}
+
+// Function reading arbitrary Strings from datahub
+String dataHubRead(byte dataHubID)
+{
+  if (dataHubID < 20 && dataHubID >= 0)
+  {
+    if (transmit((String(dataHubID) + ":#")))
+    {
+      return request("");
+    }
+  }
+
+  return "0.0";
+}
+
+// Function reading values from datahub
+long dataHubReadVal(byte dataHubID)
+{
+  if (dataHubID < 20 && dataHubID >= 0)
+  {
+    if (transmit((String(dataHubID) + ":#")))
+    {
+      return atol(request("").c_str());
+    }
+  }
+
+  return 0L;
+}
+
+// !!DO NOT ACTIVELY USE!!
+boolean transmit(String message)
+{
+  boolean done = true;
+  String messageBuffer = "";
+  
+  if (message.length() > 30)
+  {
+    messageBuffer = message.substring(30,message.length());
+    message = message.substring(0,30);
+    done = false;
+  }
+
+  if (digitalRead(4) == 1)
+  {
+    Serial.println("\n CONNECTION_ERROR.");
+    return false;
+  }
+
+  Serial.println("\n TRANSMITTING...");
+  Wire.beginTransmission(0);
+  
+  for (int i = 0 ; i < message.length() ; i++)
+  {
+    Wire.write(message.charAt(i));
+    Serial.print(message.charAt(i));
+  }
+  
+  Wire.endTransmission(done && message.indexOf(':') < 0);
+
+  if (done == false)
+  {
+    return transmit(messageBuffer);
+  }
+
+  return true;
+}
+
+// !!DO NOT ACTIVELY USE!!
+String request(String data)
+{
+  if (digitalRead(4) == 1)
+  {
+    Serial.println("CONNECTION_ERROR.");
+    return "ERROR";
+  }
+
+  Serial.println("\n REQUESTING...");
+  if(Wire.requestFrom(0, 32, false))
+  
+  while (data.length() < 32)
+  {
+    //Serial.println((char)Wire.peek());
+    data = data + (char)Wire.read();
+  }
+  
+  if (data.length() > 0 && data.indexOf('#') < 0)
+  {
+    if (data.indexOf('?') > 0)
+    {
+      data = data.substring(0,data.indexOf('?'));
+    }
+    
+    data = request(data);
+  }
+  else if (data.indexOf('#') > 0)
+  {
+    Wire.endTransmission();
+    data = data.substring(0,data.indexOf('#'));
+  }
+  else
+  {
+    Wire.endTransmission();
+  }
+
+  return data;
+}
