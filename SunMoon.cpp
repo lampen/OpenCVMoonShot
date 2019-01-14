@@ -4,7 +4,7 @@ Source code based on the javascript by Arnold Barmettler, www.astronomie.info / 
 based on algorithms by Peter Duffett-Smith's great and easy book
 'Practical Astronomy with your Calculator'.
 */
-#include "C:/Users/Casper/Desktop/C++/SunMoon.h"
+#include "SunMoon.h"
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <math.h>
@@ -125,7 +125,7 @@ namespace Astronomy
 		double round10(double x) { return (std::round(10.0 * x) / 10.0); }
 		SIGN Sign(double lon)
 		{
-			//char* signs[] = { "Widder", "Stier", "Zwillinge", "Krebs", "Löwe", "Jungfrau", "Waage", "Skorpion", "Schütze", "Steinbock", "Wassermann", "Fische" };
+			//char* signs[] = { "Widder", "Stier", "Zwillinge", "Krebs", "LÃ¶we", "Jungfrau", "Waage", "Skorpion", "SchÃ¼tze", "Steinbock", "Wassermann", "Fische" };
 			return (SIGN)((int)std::floor(lon * RAD / 30.0));
 		}
 
@@ -368,7 +368,7 @@ namespace Astronomy
 			return moonCoor;
 		}
 
-		// Rough refraction formula using standard atmosphere: 1015 mbar and 10°C
+		// Rough refraction formula using standard atmosphere: 1015 mbar and 10Â°C
 		// Input true altitude in radians, Output: increase in altitude in degrees
 		double Refraction(double alt)
 		{
@@ -704,12 +704,14 @@ namespace Astronomy
 		m_MoonRise = TimeSpan(moonRise["rise"]);
 		m_MoonSet = TimeSpan(moonRise["set"]);
 		std::cout << "AZ:   "<< m_MoonAz << "\n";
+		moonPosAz = m_MoonAz;
 		std::cout << "Alt:   " << m_MoonAlt << "\n";
-		std::cout << "lon:  " << m_Lon << "\n";
+		moonPosAlt = m_MoonAlt;
+		/*std::cout << "lon:  " << m_Lon << "\n";
 		std::cout << "lat:  " << m_Lat << "\n";
 		std::cout << "DateTime:   " << m_Zone << "\n";
 		std::cout << "RA:   " << m_MoonRA << "\n";
-		std::cout << "Dec:   " << m_MoonDec << "\n";
+		std::cout << "Dec:   " << m_MoonDec << "\n";*/
 	}
 
 	double SunMoon::GetLat() { return m_Lat; }
@@ -757,7 +759,7 @@ namespace Astronomy
 
 	std::ostream& operator<<(std::ostream& os, const SunMoon& sm)
 	{
-		os << "Östl. geografische Länge: " << sm.m_Lat << " Grad" << std::endl;
+		os << "Ã–stl. geografische LÃ¤nge: " << sm.m_Lat << " Grad" << std::endl;
 		os << "Geografische Breite: " << sm.m_Lon << " Grad" << std::endl;
 		os << "Datum/Zeit: ";
 		if (sm.m_datumzeit.tm_mday < 10) os << "0";
@@ -777,31 +779,31 @@ namespace Astronomy
 		os << "Lokale Sternzeit LMST: " << sm.m_LMST << " h" << std::endl;
 		os << "Entfernung der Sonne (Erdmittelpunkt): " << sm.m_SunDistance << " km" << std::endl;
 		os << "Entfernung der Sonne (vom Beobachter): " << sm.m_SunDistanceObserver << " km" << std::endl;
-		os << "Eklipt. Länge der Sonne: " << sm.m_SunLon << " Grad" << std::endl;
+		os << "Eklipt. LÃ¤nge der Sonne: " << sm.m_SunLon << " Grad" << std::endl;
 		os << "Rektaszension der Sonne: " << sm.m_SunRA << " h" << std::endl;
 		os << "Deklination der Sonne: " << sm.m_SunDec << " Grad" << std::endl;
 		os << "Azimut der Sonne: " << sm.m_SunAz << " Grad" << std::endl;
-		os << "Höhe der Sonne über Horizont: " << sm.m_SunAlt << " Grad" << std::endl;
+		os << "HÃ¶he der Sonne Ã¼ber Horizont: " << sm.m_SunAlt << " Grad" << std::endl;
 		os << "Durchmesser der Sonne: " << sm.m_SunDiameter << " '" << std::endl;
-		os << "Astronomische Morgendämmerung: " << sm.m_SunAstronomicalTwilightMorning << " h" << std::endl;
-		os << "Nautische Morgendämmerung: " << sm.m_SunNauticalTwilightMorning << " h" << std::endl;
-		os << "Bürgerliche Morgendämmerung: " << sm.m_SunCivilTwilightMorning << " h" << std::endl;
+		os << "Astronomische MorgendÃ¤mmerung: " << sm.m_SunAstronomicalTwilightMorning << " h" << std::endl;
+		os << "Nautische MorgendÃ¤mmerung: " << sm.m_SunNauticalTwilightMorning << " h" << std::endl;
+		os << "BÃ¼rgerliche MorgendÃ¤mmerung: " << sm.m_SunCivilTwilightMorning << " h" << std::endl;
 		os << "Sonnenaufgang: " << sm.m_SunRise << " h" << std::endl;
 		os << "Sonnenkulmination: " << sm.m_SunTransit << " h" << std::endl;
 		os << "Sonnenuntergang: " << sm.m_SunSet << " h" << std::endl;
-		os << "Bürgerliche Abenddämmerung: " << sm.m_SunCivilTwilightEvening << " h" << std::endl;
-		os << "Nautische Abenddämmerung: " << sm.m_SunNauticalTwilightEvening << " h" << std::endl;
-		os << "Astronomische Abenddämmerung: " << sm.m_SunAstronomicalTwilightEvening << " h" << std::endl;
+		os << "BÃ¼rgerliche AbenddÃ¤mmerung: " << sm.m_SunCivilTwilightEvening << " h" << std::endl;
+		os << "Nautische AbenddÃ¤mmerung: " << sm.m_SunNauticalTwilightEvening << " h" << std::endl;
+		os << "Astronomische AbenddÃ¤mmerung: " << sm.m_SunAstronomicalTwilightEvening << " h" << std::endl;
 		const char* signs[12];
 		os << "Tierkreiszeichen: " << signs[(int)sm.m_SunSign] << std::endl;
 		os << "Entfernung des Mondes (Erdmittelpunkt): " << sm.m_MoonDistance << " km" << std::endl;
 		os << "Entfernung des Mondes (vom Beobachter): " << sm.m_MoonDistanceObserver << " km" << std::endl;
-		os << "Eklipt. Länge des Mondes: " << sm.m_MoonLon << " Grad" << std::endl;
+		os << "Eklipt. LÃ¤nge des Mondes: " << sm.m_MoonLon << " Grad" << std::endl;
 		os << "Eklipt. Breite des Mondes: " << sm.m_MoonLat << " Grad" << std::endl;
 		os << "Rektaszension des Mondes: " << sm.m_MoonRA << " h" << std::endl;
 		os << "Deklination des Mondes: " << sm.m_MoonDec << " Grad" << std::endl;
 		os << "Azimut des Mondes: " << sm.m_MoonAz << " Grad" << std::endl;
-		os << "Höhe des Mondes über Horizont: " << sm.m_MoonAlt << " Grad" << std::endl;
+		os << "HÃ¶he des Mondes Ã¼ber Horizont: " << sm.m_MoonAlt << " Grad" << std::endl;
 		os << "Durchmesser des Mondes: " << sm.m_MoonDiameter << " '" << std::endl;
 		os << "Mondaufgang: " << sm.m_MoonRise << " h" << std::endl;
 		os << "Mondkulmination: " << sm.m_MoonTransit << " h" << std::endl;
